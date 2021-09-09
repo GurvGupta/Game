@@ -1,0 +1,113 @@
+from tkinter import *
+import random
+from tkinter import messagebox as tmsg
+
+# Open the file in read mode
+with open("Word_list.txt", "r") as file:
+    allText = file.read()
+    words = list(map(str, allText.split()))
+#
+#     # print random string
+#     # print(random.choice(words))
+
+################################################   variables
+score = 0
+miss = 0
+text=''
+cout=0
+Slidebar=''
+timeLeft=60
+
+def enterWord():
+    global text,Slidebar,cout
+    text='Welcome to the Speed Test Typing Game'
+    if cout>=len(text):
+        cout=0
+        Slidebar=''
+    Slidebar+=text[cout]
+    cout+=1
+    greetLabel.config(text=Slidebar)
+    greetLabel.after(150,enterWord)
+
+def timeCount():
+    global timeLeft,score,miss
+    if timeLeft>=11:
+        pass
+    else:
+        ScoreCountLabel.config(bg='red')
+    if(timeLeft>0):
+        timeLeft-=1
+        TimeCountLabel.config(text=timeLeft)
+        TimeCountLabel.after(1000,timeCount)
+
+    else:
+        KeyForPlayLabel.config(text=f'Score : {score}  Miss : {miss}')
+        user_input=tmsg.askretrycancel('Notification',"Do you want to retry?")
+        if user_input==True:
+            timeLeft=60
+            score=0
+            miss=0
+            random.shuffle(words)
+            WordLabel.config(text=words[0])
+            TimeCountLabel.config(text=timeLeft)
+            ScoreCountLabel.config(text=score)
+        else:
+            root.destroy()
+
+def handleEvent(event):
+    global score,miss
+    if timeLeft==60:
+        timeCount()
+    KeyForPlayLabel.config(text='')
+    if entrybox.get()==WordLabel['text']:
+        # print(entrybox.get())
+        score+=1
+        ScoreCountLabel.config(text=score)
+        WordLabel.config(text=words[0])
+    else:
+        miss+=1
+        WordLabel.config(text=words[0])
+
+    entrybox.delete(0, END)
+    random.shuffle(words)
+    WordLabel.config(text=words[0])
+
+root=Tk()
+root.geometry("750x550+400+100")
+root.title("Speed Test Typing Game")
+root.configure(bg='magenta')
+root.resizable(False,False)
+
+################################   label Section
+
+greetLabel=Label(root,text="Welcome to the Speed Test Typing Game",font=('times',25,'italic bold'),bg='magenta',fg='cyan',width=30)
+greetLabel.place(x=65,y=10)
+enterWord()
+
+ScoreLabel=Label(root,text="Score",font=('times',20,'italic bold'),bg='powder blue')
+ScoreLabel.place(x=20,y=90)
+
+ScoreCountLabel=Label(root,text="0",font=('times',20,'italic bold'),bg='powder blue')
+ScoreCountLabel.place(x=30,y=130)
+
+TimerLabel=Label(root,text="Time Left..",font=('times',20,'italic bold'),bg='powder blue')
+TimerLabel.place(x=600,y=90)
+
+# timeCount()
+TimeCountLabel=Label(root,text="60",font=('times',20,'italic bold'),bg='powder blue')
+TimeCountLabel.place(x=650,y=130)
+
+random.shuffle(words)
+WordLabel=Label(root,text=words[0],font=('times',20,'italic bold'),bg='powder blue')
+WordLabel.place(x=325,y=200)
+
+KeyForPlayLabel=Label(root,text="Enter the word given and Hit Enter..",font=('times',25,'italic bold'),bg='magenta',fg='red')
+KeyForPlayLabel.place(x=200,y=350)
+
+entrybox=Entry(root,font=('times',20,'italic bold'),bg='light grey',bd=8,width=20,justify='center')
+entrybox.place(x=240,y=250)
+entrybox.focus_set()
+
+root.bind('<Return>',handleEvent)
+# root.bind('<Return>',timeCount)
+root.mainloop()
